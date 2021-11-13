@@ -8,6 +8,7 @@
       <Path>Library/PackageCache/com.unity.ide.rider@2.0.7</Path>
       <Path>Library/PackageCache/com.unity.ide.visualstudio@2.0.11</Path>
       <Path>Library/PackageCache/com.unity.ide.vscode@1.2.4</Path>
+      <Path>Library/PackageCache/com.unity.postprocessing@3.1.1</Path>
       <Path>Library/PackageCache/com.unity.test-framework@1.1.29</Path>
       <Path>Library/PackageCache/com.unity.textmeshpro@3.0.6</Path>
       <Path>Library/PackageCache/com.unity.timeline@1.4.8</Path>
@@ -18,7 +19,6 @@
       <Path>.git</Path>
       <Path>.idea</Path>
       <Path>Logs</Path>
-      <Path>Temp</Path>
       <Path>UserSettings</Path>
       <Path>obj</Path>
     </explicitExcludes>

@@ -1,28 +1,31 @@
 using System;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(PlayerInput))]
+[RequireComponent(typeof(Animator))]
 
 public class PlayerMover : MonoBehaviour
 {
-    
     [SerializeField] private float _maxJumpHeight;
     [SerializeField] private float _maxJumpSpeed;
     [SerializeField] private float _jumpHeightAdd;
     [SerializeField] private float _jumpSpeedAdd;
     [SerializeField] private float _landYPosition;
-    [SerializeField] private PointsText _pointsText;
-     
+    [SerializeField] private ParticleSystem _compressingParticle;
+    [SerializeField] private Stickman _stickman;
+
+    
     private float _currentTime;
+    private Animator _animator;
     private bool _isGrounded;
     private float _jumpHeight;
     private float _jumpSpeed;
     private float _elapsedTime;
     private Rigidbody _rigidbody;
     private PlayerInput _input;
-    private bool _isWorking;
 
     private void Awake()
     {
@@ -33,63 +36,56 @@ public class PlayerMover : MonoBehaviour
     {
         _input.StartedGainPower += OnStartedGainPower;
         _input.Jumped += OnJumped;
+        _input.StartedMakeLanding += OnMakeALanding;
     }
 
     private void OnDisable()
     {
         _input.StartedGainPower -= OnStartedGainPower;
         _input.Jumped -= OnJumped;
+        _input.StartedMakeLanding -= OnMakeALanding;
     }
 
     private void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
+        _animator = GetComponent<Animator>();
     }
     
     private void OnCollisionEnter(Collision collision)
     {
         _isGrounded = true;
+        _animator.SetBool(AnimatorPlayerController.States.IsGrounded,true);
         _rigidbody.velocity = Vector3.zero;
     }
     
     private void OnCollisionExit(Collision collision)
     {
         _isGrounded = false;
+        _animator.SetBool(AnimatorPlayerController.States.IsGrounded,false);
+        _compressingParticle.Stop();
     }
 
     private void OnTriggerEnter(Collider collider)
     {
-        if (collider.TryGetComponent(out Platform platform))
+        if (collider.TryGetComponent(out LoseZone loseZone))
         {
-           _pointsText.Create(platform.PointsValue);
-        }
-    }
-    
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-                OnStartedGainPower();
-        if (Input.GetKeyUp(KeyCode.Space))
-            OnJumped();
-
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            if (_isGrounded == false)
-            {
-                MakeALanding();
-            }
+            _stickman.transform.DORotate(new Vector3(0, -90, 0),1);
         }
     }
 
     private void OnStartedGainPower()
     {
+        _animator.SetTrigger(AnimatorPlayerController.States.Compressing);
         _currentTime = Time.time;
+        _compressingParticle.Play();
     }
 
     private void OnJumped()
     {
         if (_isGrounded)
         {
+            _animator.SetTrigger(AnimatorPlayerController.States.Jump);
             _elapsedTime = Time.time - _currentTime;
             CalculateJumpVelocity();
             _rigidbody.AddForce((transform.up + transform.forward) + new Vector3(0, _jumpHeight, _jumpSpeed),
@@ -115,7 +111,7 @@ public class PlayerMover : MonoBehaviour
             _jumpSpeed = _maxJumpSpeed;
     }
 
-    private void MakeALanding()
+    private void OnMakeALanding()
     {
         _rigidbody.velocity = Vector3.zero;
         transform.DOMoveY(_landYPosition,0.4f);

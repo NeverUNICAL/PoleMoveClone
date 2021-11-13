@@ -5,6 +5,9 @@ public class PlayerInput : MonoBehaviour
 {
     public event UnityAction Jumped;
     public event UnityAction StartedGainPower;
+    public event UnityAction StartedMakeLanding;
+    
+    
     
     private void Update()
     {
@@ -13,5 +16,8 @@ public class PlayerInput : MonoBehaviour
         
         if (Input.GetKeyUp(KeyCode.Space))
             Jumped?.Invoke();
+        
+        if (Input.GetKeyDown(KeyCode.S))
+            StartedMakeLanding?.Invoke();
     }
 }
